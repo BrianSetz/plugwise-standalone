@@ -7,7 +7,7 @@ import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Main extends App with Logging {
-  val plugwise = new Plugwise("ttyUSB0")
+  val plugwise = new Plugwise("COM3")
 
   val openFuture = plugwise.open()
 
@@ -15,8 +15,15 @@ object Main extends App with Logging {
     case Success(result) =>
       info("Plugwise USB connection opened successfully")
 
-      plugwise.circleOn("AABBCCDDEEFF")
-      plugwise.circleOff("AABBCCDDEEFF")
+      plugwise.circleConsumption("000D6F0004B1E8C0").onComplete {
+        case Success(consumption) => info(s"Current electricity consumption in W: ${consumption.watt1s}")
+        case Failure(e) => error(e)
+      }
+
+      plugwise.circleOff("000D6F0004B1E8C0").onComplete {
+        case Success(r) => info("Circles has been turned off.")
+        case Failure(e) => error(e)
+      }
     case Failure(exception) =>
       error("Failed to open Plugwise USB connection", exception)
   }
