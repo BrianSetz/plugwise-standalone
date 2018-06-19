@@ -11,16 +11,18 @@ object Main extends App with Logging {
 
   val openFuture = plugwise.open()
 
+  val mac = "000D6F0004B1E8C0"
+
   openFuture.onComplete {
     case Success(result) =>
       info("Plugwise USB connection opened successfully")
 
-      plugwise.circleConsumption("000D6F0004B1E8C0").onComplete {
+      plugwise.circleConsumption(mac).onComplete {
         case Success(consumption) => info(s"Current electricity consumption in W: ${consumption.watt1s}")
         case Failure(e) => error(e)
       }
 
-      plugwise.circleOff("000D6F0004B1E8C0").onComplete {
+      plugwise.circleOff(mac).onComplete {
         case Success(r) => info("Circles has been turned off.")
         case Failure(e) => error(e)
       }
